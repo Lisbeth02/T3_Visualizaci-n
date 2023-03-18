@@ -1,0 +1,281 @@
+---
+title: "Tarea_Visualización"
+author: "Sulma Alvarado"
+date: "2023-03-04"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r}
+## Installer librerías 
+```{r, results='hide'}
+
+library(ggpubr)
+library(patchwork)
+library(ggplot2)
+library(grid)
+library(cowplot)
+library(gridExtra)
+library(ggrepel)
+library(dplyr)
+
+```
+
+##  Rebaja R
+sulma Alvarado - "sulma.alvarado@est.ikiam.edu.ec" - Universidad Regional Amazonica Ikiam, Tena-Ecuador
+
+#  Tarea de Visualización
+"**¿Qué es una buena visulaización?**"
+"Es algo que cautiva a la audiencia y refuerza el mensaje que se desea comunicar. Para ello se debe identificar lo siguiente:"
+  
+- El mensaje utilizando la visualización exploratoria.
+
+- La mejor representación para el mensaje.
+
+- La apariencia que mejor resalta los resultados.
+
+- Mensajes adicionales apropiados.
+
+"**¿Cómo se logra una buena visualización?**"
+  
+Empleando los elementos adecuados en el diseño de la visualización de datos. Estos elementos fueron compilados y establecidos por Leland Wilkinson en su libro "The grammar of graphics: statistcs and computing".
+Se tiene dos tipos de visualizaciones concatenadas: **Visualización de análisis - visualización de presentación**
+  
+-    **Visualización de Análisis** , para tener una primera impresión de los patrones, tendencias que ayudan a describir e interpretar el tipo de datos. Aquí aplica la regla de 20 - 80, donde se tiene un **20%** de tiempo de análisis para obtener el **80%** de los resultados esperados.
+
+-    **Visualización de Presentación** , donde se realiza el diseño (tipos de geom(), colores, tamaño, ejes, leyendas, agrupaciones) adecuado, se resalta lo importante y se ilustra un mensaje. Aquí se aplica la regla 80 - 20, donde se dedica un **80%** de tiempo en la actividad para obtener el **80%** de los resultados esperados.
+ggplot(datos = <DATOS>) +
+  <geom>(mapeo = aes(<MAPPINGS>),stat = <ESTADISTICAS>, position = <POSICION> ) + <coordenadas> + <faceta> + <tema>
+  
+  # Instrucciones 
+  Use un documento tipo *.Rmd* o *.qmd* y genere un informe *html.* Estos dos documentos (Rmd y html) guardelos con control de cambios en un repositorio de GitHub y **pegue solamente el enlace del repositorio** en esta entrega. La entrega debe contener los códigos para obtener las siguientes figuras:
+  ##  Datos
+  Son aquellos datos preinstalados en R.
+
+```{r, dientes}
+
+## **ToothGrowth:** contiene la longitud de los odontoblastos (células responsables del crecimiento dental) en 60 cobayos. Cada animal recibió uno de tres niveles de dosis de vitamina C (0.5, 1 y 2 mg/día) por uno de dos métodos de entrega, jugo de naranja o ácido ascórbico (una forma de vitamina C y codificada como VC). Tiene 60 observaciones y 3 variables: len (longitud del diente), supp (tipo de suplemento) y dose (dosis de vitamina C).
+data("ToothGrowth")
+head(ToothGrowth, n=4)
+```
+```{r, carros}
+##**mtcars:** contiene el consumo de combustible y 10 aspectos del diseño y rendimiento del automóvil para 32 automóviles (modelos 1973-74). Tiene 32 observaciones y 11 variables numéricas: mpg (millas por galón), cyl (número de cilindros), disp (desplazamiento del motor), hp (caballos de fuerza), drat (relación del eje trasero), wt (peso), qsec (tiempo en el cuarto de milla), vs (forma del motor), am (transmisión manual o automática), gear (número de marchas) y carb (número de carburadores).
+data("mtcars")
+head(mtcars, n=4)
+```
+```{r, diamonds}
+
+##**Diamonds:** contiene las mediciones sobre 10 variables diferentes para 53.940 diamantes. Tiene 53.940 observaciones y 10 variables: price(precio en dólares estadounidenses), carat(peso del diamante en quilates), cut(calidad del corte: Fair, Good, Very Good, Premium o Ideal), color(color del diamante desde J(peor) hasta D(mejor)), clarity(claridad desde I1(peor) hasta IF(mejor)), x(longitud en mm.), y(ancho en mm.), z(profundidad en mm.), depth(profundidad total porcentual = z / media(x,y)), table(ancho superior relativo al punto más ancho).)
+
+data("diamonds")
+
+head(diamonds, n=4)
+
+```
+
+##  1. Réplica de la figura compuesta.
+```{r, results='hide'}
+
+## Cambio en cy1 a variable categorica y no numerica
+
+data("mtcars")
+mtcars$name  = rownames(mtcars)
+mtcars$cyl  = as.factor(mtcars$cyl)
+head(mtcars[, c("name", "wt", "mpg", "cyl")])
+```
+```{r, barplot}
+#Barplot por registro
+
+## se definen los datos y las variables + se crea las barras +  se mueve la leyenda a la izquierda + se rota los nombres del eje x + se pone el título
+cars1<-ggplot(mtcars, aes(x = name, y = mpg, fill = cyl)) + 
+  geom_bar(stat = "identity", position = "dodge") + 
+  theme(legend.position = "left", 
+        axis.text.x = element_text(angle = 90)) + 
+  labs(title = "Consumo de combustible por modelo", 
+       x = "Modelo", # se agrega el nombre del eje x
+       y = "Millas por galón", # se agrega el nombre del eje y
+       fill = "Cilindros")+ # se agrega el nombre de la leyenda
+  theme(axis.text = element_text(size = 8),
+        axis.title = element_text(size = 8),
+        title = element_text(size = 8))
+cars1
+```
+
+```{r, barplot}
+cars2<-ggplot(mtcars, aes(x = reorder(name, mpg), y = mpg, fill = cyl)) + 
+  geom_bar(stat = "identity", position = "dodge") + 
+  theme(legend.position = "left", 
+        axis.text.x = element_text(angle = 90)) + 
+  labs(title = "Consumo de combustible por modelo y cilindro", x = "Modelo", y = "Millas por galón", 
+       fill = "Cilindros")+ 
+  theme(axis.text = element_text(size = 8),
+        axis.title = element_text(size = 8),
+        title = element_text(size = 8))
+cars2
+```
+
+```{r}
+##Densidades
+
+data("diamonds")
+dens<- ggplot(diamonds, aes(x = depth, fill = cut)) + geom_density(alpha = 0.2) + theme(legend.position = "left", 
+                                                                                        axis.text.x = element_text(angle = 90)) +
+  labs(title = "Distribución de la profundidad según el corte", x = "Profundidad", y = "Densidad") +
+  theme_classic() +
+  xlim(54,64) +
+  theme(axis.text = element_text(size = 8),
+        axis.title = element_text(size = 8),
+        title = element_text(size = 8))
+dens
+```
+
+```{r}
+## Gráfica de dispersión
+dispercion <- ggscatter(mtcars, x = "wt", y = "mpg", add = "reg.line", conf.int = TRUE, color = "cyl", palette = "jco", shape = "cyl") + 
+  stat_cor(aes(color = cyl), label.x = 3) + 
+  labs(title= "Relacion peso y consumo de combustible",x = "Peso del coche", y = "Millas por galon") + 
+  theme(axis.text = element_text(size = 8),
+        axis.title = element_text(size = 8),
+        title = element_text(size = 8))
+dispercion
+```
+## Gráfico de puntos
+```{r}
+Puntos <- ggdotplot(ToothGrowth, x = "dose", y = "len", 
+                    color = "dose",
+                    palette = "mpg", 
+                    binwidth = 1) +
+  labs(title = "Efecto de la vitamina C en el crecimiento del diente", x = "Dosis de vitamina C (mg)", y = "Longitud del diente (mm)")+
+  scale_color_manual(values = c( "blue1","brown1", "brown4")) +
+  theme(axis.text = element_text(size = 8),
+        axis.title = element_text(size = 8),
+        title = element_text(size = 8))
+Puntos
+```
+
+```{r}
+## Gráfica zoom 
+set.seed(42)   #semilla
+n <- 1000      #tamaño
+x <- runif(n) * 3  # Valores x, y
+# Función no lineal de x, mas ruido normal
+
+y <- x * sin(1/x) + rnorm(n) / 25 
+df <- data.frame(x = x, y = y)  
+zoom1 <- ggplot(df, aes(x, y)) + geom_point(alpha = 0.3, col = "brown2") + 
+  geom_smooth(se = FALSE) + theme_classic()  
+#se crea la segunda grafica con limites
+zoom2 <- ggplot(df, aes(x, y)) + geom_point(alpha = 0.3, col = "lightblue2") + geom_smooth(se = FALSE) + 
+  scale_x_continuous(limits = c(0, 0.5)) +
+  scale_y_continuous(limits = c(-0.5, 0.5)) + 
+  labs(x = NULL, y = NULL) + theme_classic() 
+zoom1
+zoom2
+```
+```{r}
+# Se combinan las dos gráficas usando annotation_custom()
+Z <- zoom1 + annotation_custom(ggplotGrob(zoom2), xmin = 1, xmax = 2, ymin = -0.5, ymax = 0.5) +
+  labs(title = "Relación no lineal y oscilante entre x,y con zoom en la región baja x") + theme_dark() + theme(axis.text = element_text(size = 8),
+                                                                                                               axis.title = element_text(size = 8),
+                                                                                                               title = element_text(size = 5))
+Z
+```
+
+```{r}
+## Grafica de calor
+Calr <- ggplot(faithfuld, aes(eruptions, waiting)) + 
+  geom_raster(aes(fill = density))+
+  theme_minimal()+ # Se cambia el tema a minimal
+  # Se añade un título y etiquetas a los ejes
+  labs(title = "Datos del géiser Old Faithful",
+       x = "Tiempo de espera hasta la próxima erupción (en minutos)",
+       y = "Tiempo de erupción (en minutos)",
+       fill = "density")+
+  theme(axis.text = element_text(size = 8),
+        axis.title = element_text(size = 8),
+        title = element_text(size = 6))
+Calr
+```
+
+```{r, results='hide'}
+pdf("plots/multiplot.pdf")
+par(mfrow=c(3,1)) # 3 filas y 1 columna
+plot(dfm1)
+plot(dm)
+plot(dfm2)
+par(mfrow=c(3,1)) # nueva página con 3 filas y 1 columna
+plot(pt)
+plot(dt)
+plot(hm)
+dev.off()
+```
+
+
+```
+
+# Gráfica embebida
+
+Para la realización de esta gráfica se utilizó el conjunto de datos "Gapminder", que es un conjunto de datos ampliamente utilizado en la enseñanza y la investigación de la ciencia de datos.
+
+Este conjunto de datos contiene información sobre la expectativa de vida, la población y el ingreso per cápita de diferentes países del mundo, en diferentes momentos entre 1952 y 2007.
+El conjunto de datos incluye información sobre 142 países diferentes.
+Este conjunto de datos es interesante para explorar patrones y tendencias en el desarrollo humano en todo el mundo a lo largo del tiempo. Además, es comúnmente utilizado
+como un ejemplo en la enseñanza de la visualización de datos y técnicas de análisis de datos en la ciencia de datos.
+
+- Gapminder. (2008). Gapminder World 2008 (v. 1.0) [Data set]. https://www.gapminder.org/data/
+  
+```{r}
+library(dplyr); library(ggplot2); library(grid)
+library(gridExtra); library(ggrepel)
+```
+
+
+```{r}
+# Para cargar la data, lo que deseamos visualizar
+ruta <- "https://raw.githubusercontent.com/martintinch0/CienciaDeDatosParaCuriosos/master/data/gapminder.csv"
+df_gapminder <- read.table(file = ruta, sep=';', header = TRUE, stringsAsFactors = FALSE)
+```
+
+```{r}
+# Para crear la gráfica principal con todos los países
+p1 <- df_gapminder %>% 
+  filter(year == 2007) %>% 
+  ggplot(aes(x = gdpPercap, y = lifeExp, size = pop, color = continent)) +
+  geom_point() + 
+  labs(x = "Ingreso promedio (USD)",
+       y = "Expectativa de vida al nacer (años)",
+       title="Esperanza de vida debido al ingreso promedio - 2007",
+       caption="Fuente: Gapminder",
+       color="Continente: ") +
+  #Theme, tema
+  theme(legend.position="bottom", 
+        legend.title = element_text(face = "bold", color = "black", size= 10), 
+        panel.background = element_rect(fill = "white", colour = "grey80"), 
+        panel.grid.major = element_line(colour = "grey90", linetype = "dotted"))
+p1
+```
+```{r}
+# Crear la gráfica secundaria con solo algunos países
+p2 <- df_gapminder %>% 
+  filter(year == 2007) %>% 
+  ggplot(aes(x = gdpPercap, y = lifeExp, size = pop, color = continent)) +
+  geom_point() + 
+  geom_label_repel(aes(label = country), box.padding = 0.35, point.padding = 0.5, arrow = arrow(length = unit(0.02, "npc")))+
+  labs(x = NULL, y = NULL) + 
+  theme(legend.position = "null")
+```
+
+```{r}
+# Dibujar la gráfica principal
+p1
+# Crear una región en la esquina superior derecha con viewport
+vp <- grid::viewport(x = .57,
+                     y = .5,
+                     width = .5,
+                     height = .4)
+# Dibujar la gráfica secundaria dentro de esa región con grid.draw
+grid::grid.draw(grid::grobTree(grid::rectGrob(gp=grid::gpar(fill="white", alpha=0.5)),
+                               vp=vp,
+                               ggplotGrob(p2)))
+```
